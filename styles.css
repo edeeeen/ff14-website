@@ -1,0 +1,12 @@
+body {
+    background-color:  #232b2b;
+    font-family: verdana;
+    font-size: 150%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 55%;
+    color: white;
+}
+h1 {
+    font-size: 200%;
+}

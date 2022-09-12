@@ -63,7 +63,7 @@ function searchForItemID(item) {
 }
 
 //stolen from stack overflow
-// fucked if you use it on things with numerals
+// fucked if you use it on things with numerals (materia)
 String.prototype.toProperCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
@@ -91,14 +91,22 @@ function craftingRecipe(itemID){
     }
 
 }
-
+//
 async function getRecipePrice(world, recipe, amountToMake) {
     console.log(recipe);
-    function forEachFunct(item, index) {
-        var itemPriceArr = getItemPrice(world, searchForItemID(item[0]), item[1]);
-        if (itemPriceArr.length < item[1])
+    var totalPrice;
+    async function forEachFunct(item, index) {
+        var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), item[1]*amountToMake);
+        console.log(itemPriceArr);
+        var i = 1;
+        do {
+
+            i += 3;
+        } while(i < itemPriceArr.length);
     }
-    recipe.forEach(forEachFunct);
+    //can probably make faster
+    recipe.forEach(await forEachFunct);
+    console.log("a");
     
 }
 
@@ -109,7 +117,7 @@ async function buttonClick() {
     var word = document.getElementById("input").value;
     var itemID = searchForItemID(word);
     var recipe = craftingRecipe(itemID);
-    getRecipePrice("crystal", recipe, 1);
+    getRecipePrice("crystal", recipe, 2);
     //console.log(await getItemPrice("crystal", itemID, 5));
     document.getElementById("output").innerHTML = word + " has the item ID of " + itemID + "\nThe crafting recipe is " + recipe;
     //console.log(items);

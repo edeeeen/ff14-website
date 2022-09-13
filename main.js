@@ -26,7 +26,7 @@ window.onload = async function() {
     recipies = JSON.parse(await getData("data/Recipe.json"));
     for (var i = 0; i < items.length; i++)
     {
-        itemName.push(items[i].Name);
+        itemName.push(items[i].Singular.toLowerCase());
     }
     for (var i = 0; i < recipies.length; i++)
     {
@@ -36,7 +36,7 @@ window.onload = async function() {
 
 async function getItemPrice(world, itemID, amount) {
 
-    const response = await fetch("https://universalis.app/api/v2/" + world + "/" + itemID + "?listings=10");
+    const response = await fetch("https://universalis.app/api/v2/" + world + "/" + itemID + "?listings=20");
     if (!response.ok) {
         throw Error(response.statusText);
     }
@@ -58,7 +58,7 @@ async function getItemPrice(world, itemID, amount) {
 }
 
 function searchForItemID(item) {
-    var index = itemName.indexOf(item);
+    var index = itemName.indexOf(item.toLowerCase());
     return index+1
 }
 
@@ -69,7 +69,6 @@ String.prototype.toProperCase = function () {
 };
 
 
-
 function craftingRecipe(itemID){
     index = recipiesResultID.indexOf(itemID);
     if(index == -1) {
@@ -78,7 +77,7 @@ function craftingRecipe(itemID){
         var itemList = [];
         for(var i = 0; i < 10; i++) {
             try {
-                var item = items[recipies[index]["Item{Ingredient}["+i+"]"]-1].Name;
+                var item = items[recipies[index]["Item{Ingredient}["+i+"]"]-1].Singular.toLowerCase();
                 var amount = recipies[index]["Amount{Ingredient}["+i+"]"];
             }
             catch {
@@ -91,37 +90,47 @@ function craftingRecipe(itemID){
     }
 
 }
-//
+//finds the total price of the recipe
 async function getRecipePrice(world, recipe, amountToMake) {
-    console.log(recipe);
-    var totalPrice;
-    async function forEachFunct(item, index) {
-        var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), item[1]*amountToMake);
-        console.log(itemPriceArr);
+    var totalPrice = 0;
+    for (let item of recipe) {
+        var total = item[1]*amountToMake;
+        var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), total);
+        //count to the total with this
+        var countingTotal = 0;
         var i = 1;
         do {
-
+            //console.log(itemPriceArr[i]);
+            if (itemPriceArr[i] > total-countingTotal) {
+                totalPrice += itemPriceArr[i-1] * (total-countingTotal);
+                //console.log("in price for 1: " + itemPriceArr[i-1]);
+                //console.log("in " + itemPriceArr[i-1] * (total-countingTotal));
+            } else {
+                totalPrice += itemPriceArr[i-1] * itemPriceArr[i];
+                countingTotal += itemPriceArr[i];
+                //console.log("regular gil:" + itemPriceArr[i-1] * itemPriceArr[i] + "   amount:" + itemPriceArr[i]);
+            }
+            
             i += 3;
         } while(i < itemPriceArr.length);
     }
-    //can probably make faster
-    recipe.forEach(await forEachFunct);
-    console.log("a");
-    
+    return totalPrice;
 }
-
-
 
 
 async function buttonClick() {
     var word = document.getElementById("input").value;
     var itemID = searchForItemID(word);
-    var recipe = craftingRecipe(itemID);
-    getRecipePrice("crystal", recipe, 2);
-    //console.log(await getItemPrice("crystal", itemID, 5));
-    document.getElementById("output").innerHTML = word + " has the item ID of " + itemID + "\nThe crafting recipe is " + recipe;
-    //console.log(items);
-    //var itemData = JSON.parse(Item);
-    //console.log(itemData[0]);
+    var price = await getItemPrice("crystal", itemID, 1);
+    if (recipiesResultID.indexOf(itemID) == -1) {
+        document.getElementById("output").innerHTML = word + " is not craftable, however sells for " + price[0] + " gil"  ;
+    } else {
+        var recipe = craftingRecipe(itemID);
+        var total =  await getRecipePrice("crystal", recipe, 1);
+        console.log(price[0]);
+        document.getElementById("output").innerHTML = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
+    }
+    document.getElementById('image1').src='https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
+    document.getElementById('image1').width=70;
+    document.getElementById('text1').innerHTML = word;
 }
-

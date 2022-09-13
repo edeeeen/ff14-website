@@ -10,3 +10,9 @@ body {
 h1 {
     font-size: 200%;
 }
+image {
+    float:left;
+}
+p {
+    float:right;
+}

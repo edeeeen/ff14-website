@@ -24,12 +24,10 @@ async function getData(jsonURL) {
 window.onload = async function() {
     items = JSON.parse(await getData("data/Item.json"));
     recipies = JSON.parse(await getData("data/Recipe.json"));
-    for (var i = 0; i < items.length; i++)
-    {
+    for (var i = 0; i < items.length; i++) {
         itemName.push(items[i].Singular.toLowerCase());
     }
-    for (var i = 0; i < recipies.length; i++)
-    {
+    for (var i = 0; i < recipies.length; i++) {
         recipiesResultID.push(Number(recipies[i]["Item{Result}"]));
     }
 };
@@ -127,10 +125,32 @@ async function buttonClick() {
     } else {
         var recipe = craftingRecipe(itemID);
         var total =  await getRecipePrice("crystal", recipe, 1);
-        console.log(price[0]);
         document.getElementById("output").innerHTML = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
+        for (var i = 0; i < recipe.length; i++) {
+            //document.getElementById('table').appendChild(document.createElement("tbody"))
+
+        }
+        document.getElementById('image1').width=70;
+        document.getElementById('text1').innerHTML = word;
+        let table = document.getElementById('table1');
+        let row = document.createElement('tr');
+        let thead = document.createElement('th');
+        let tbody = document.createElement('tbody');
+        tempRow = table.appendChild(row);
+        thead = tempRow.appendChild(thead);
+        img1 = thead.appendChild(document.createElement('img'));
+        img1.setAttribute("src", 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png');
+        thead = document.createElement('th');
+        thead = tempRow.appendChild(thead);
+        text1 = thead.appendChild(document.createElement('p'));
+        text1.innerHTML = word
+
+
+        tbody = table.appendChild(tbody);
+        tbody.setAttribute("id", "tb1");
+
     }
-    document.getElementById('image1').src='https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
-    document.getElementById('image1').width=70;
-    document.getElementById('text1').innerHTML = word;
+    //document.getElementById('image1').src='https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
+    
+    
 }

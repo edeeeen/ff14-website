@@ -10,9 +10,8 @@ body {
 h1 {
     font-size: 200%;
 }
-image {
-    float:left;
+
+table {
+    color: #232b2b; 
 }
-p {
-    float:right;
-}
+

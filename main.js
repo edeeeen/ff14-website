@@ -130,6 +130,7 @@ async function buttonClick() {
             //document.getElementById('table').appendChild(document.createElement("tbody"))
 
         }
+        /*
         document.getElementById('image1').width=70;
         document.getElementById('text1').innerHTML = word;
         let table = document.getElementById('table1');
@@ -140,14 +141,29 @@ async function buttonClick() {
         thead = tempRow.appendChild(thead);
         img1 = thead.appendChild(document.createElement('img'));
         img1.setAttribute("src", 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png');
+        img1.setAttribute("width", '80');
         thead = document.createElement('th');
         thead = tempRow.appendChild(thead);
         text1 = thead.appendChild(document.createElement('p'));
         text1.innerHTML = word
+        thead = document.createElement('th');
+        thead = tempRow.appendChild(thead);
+        text1 = thead.appendChild(document.createElement('p'));
+        text1.innerHTML = price[0] + " gil";
+        */
+        document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
+        document.getElementById("name1").innerHTML =  items[itemID+1].Name;
+        document.getElementById("gil1").innerHTML = price[0] + "gil";
+        for (var i = 2; i < recipe.length; i++) {
+            var tempID = searchForItemID(recipe[i-2][0]);
+            console.log(tempID);
+            document.getElementById('img' + i).src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ tempID +'.png';
+            document.getElementById("name" + i).innerHTML =  items[itemID+1]["Name"];
+            document.getElementById("gil" + i).innerHTML = price[0] + "gil";
+        }
 
-
-        tbody = table.appendChild(tbody);
-        tbody.setAttribute("id", "tb1");
+        //tbody = table.appendChild(tbody);
+        //tbody.setAttribute("id", "tb1");
 
     }
     //document.getElementById('image1').src='https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';

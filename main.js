@@ -25,7 +25,7 @@ window.onload = async function() {
     items = JSON.parse(await getData("data/Item.json"));
     recipies = JSON.parse(await getData("data/Recipe.json"));
     for (var i = 0; i < items.length; i++) {
-        itemName.push(items[i].Singular.toLowerCase());
+        itemName.push(items[i].Name.toLowerCase());
     }
     for (var i = 0; i < recipies.length; i++) {
         recipiesResultID.push(Number(recipies[i]["Item{Result}"]));
@@ -60,13 +60,6 @@ function searchForItemID(item) {
     return index+1;
 }
 
-//stolen from stack overflow
-// fucked if you use it on things with numerals (materia)
-String.prototype.toProperCase = function () {
-    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-};
-
-
 function craftingRecipe(itemID){
     index = recipiesResultID.indexOf(itemID);
     if(index == -1) {
@@ -75,7 +68,7 @@ function craftingRecipe(itemID){
         var itemList = [];
         for(var i = 0; i < 10; i++) {
             try {
-                var item = items[recipies[index]["Item{Ingredient}["+i+"]"]-1].Singular.toLowerCase();
+                var item = items[recipies[index]["Item{Ingredient}["+i+"]"]-1].Name.toLowerCase();
                 var amount = recipies[index]["Amount{Ingredient}["+i+"]"];
             }
             catch {
@@ -132,23 +125,73 @@ async function buttonClick() {
         var total =  await getRecipePrice("crystal", recipe, 1);
         document.getElementById("output").innerText = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
-        document.getElementById("name1").innerText =  items[itemID].Name;
+        document.getElementById("name1").innerText =  items[itemID-1].Name;
         document.getElementById("gil1").innerText = price[0] + " gil";
-        for (var i = 2; i < recipe.length+2; i++) {
-            var tempID = searchForItemID(recipe[i-2][0]);
-            var x = await getItemPrice("crystal", tempID, 1)
-            console.log(x[0]);
-            document.getElementById('img' + i).src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ tempID +'.png';
-            //can make faster by just using the item array it should just be itemID-1
-            document.getElementById("name" + i).innerText =  items[tempID-1]["Name"];
-            document.getElementById("gil" + i).innerText = x[0] + " gil";
+        var table = document.getElementById("table2");
+        console.log(recipe);
+        
+        var w, elements = document.getElementsByClassName('tableDeletion');
+        for (w = elements.length; w--;) {         
+            elements[w].parentNode.removeChild(elements[w]);             
         }
+        
+        for (var i = 0; i < recipe.length; i++) {
+            var tempID = searchForItemID(recipe[i][0]);
+            var itemPrice = await getItemPrice("crystal", tempID, 1)
+            var row = table.insertRow(i);
+            row.className = "tableDeletion";
+            //is there a better way to do this? prolly
+            for (var x = 0; x < 5; x++) {
+                var cell = row.insertCell(x);
+                cell.className = "tableDeletion"
+                switch(x) {
+                    case 0:
+                        //Clicker boy
+                        var checkbox = document.createElement('input');
+                        checkbox.type = "checkbox";
+                        //checkbox.name = "name";
+                        //checkbox.value = "value";
+                        checkbox.className = "checkboxIn";
+                        checkbox.id = ""
+                        checkbox.setAttribute("onchange", "checkboxClick(" + recipe[i][1] + ",'"  + items[tempID-1]["Name"] + "')");
+                        cell.appendChild(checkbox);
+                        break;
+                    case 1:
+                        //img
+                        var image = document.createElement('img');
+                        image.width = "80";
+                        image.src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ tempID +'.png';
+                        cell.appendChild(image);
+                        break;
+                    case 2:
+                        //amount
+                        var amount = document.createElement('p');
+                        amount.innerText = recipe[i][1];
+                        amount.className = "pInTable";
+                        cell.appendChild(amount);
+                        break;
+                    case 3:
+                        //name
+                        var name = document.createElement('p');
+                        name.innerText = items[tempID-1]["Name"];
+                        name.className = "pInTable";
+                        cell.appendChild(name);
+                        break;
+                    case 4:
+                        //gil
+                        var gil = document.createElement('p');
+                        gil.innerText = itemPrice[0] + " gil";
+                        gil.className = "pInTable";
+                        cell.appendChild(gil);
+                        break;
+                    default:
+                        throw 'Error idk how you did that';
+                }
+            }
+        }
+    }     
+}
 
-        //tbody = table.appendChild(tbody);
-        //tbody.setAttribute("id", "tb1");
-
-    }
-    //document.getElementById('image1').src='https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
-    
-    
+function checkboxClick(amount, name) {
+    console.log(amount + "             " + name);
 }

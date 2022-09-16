@@ -22,10 +22,16 @@ button {
 }
 
 .pInTable {
-    
     width: 100%;
     padding-left: 50px;
     padding-right: 50px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.checkboxIn {
+    padding-left: 50px;
+    padding-right: 50px;
+    width: 200%;
+    height: 200%;
 }

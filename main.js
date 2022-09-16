@@ -122,46 +122,26 @@ async function buttonClick() {
     console.log(itemID);
     var price = await getItemPrice("crystal", itemID, 1);
     if (recipiesResultID.indexOf(itemID) == -1) {
-        document.getElementById("output").innerHTML = word + " is not craftable, however sells for " + price[0] + " gil"  ;
+        document.getElementById("output").innerText = word + " is not craftable, however sells for " + price[0] + " gil"  ;
+        document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
+        document.getElementById("name1").innerText =  items[itemID-1].Name;
+        document.getElementById("gil1").innerText = price[0] + " gil";
+        console.log(itemID);
     } else {
         var recipe = craftingRecipe(itemID);
         var total =  await getRecipePrice("crystal", recipe, 1);
-        document.getElementById("output").innerHTML = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
-        for (var i = 0; i < recipe.length; i++) {
-            //document.getElementById('table').appendChild(document.createElement("tbody"))
-
-        }
-        /*
-        document.getElementById('image1').width=70;
-        document.getElementById('text1').innerHTML = word;
-        let table = document.getElementById('table1');
-        let row = document.createElement('tr');
-        let thead = document.createElement('th');
-        let tbody = document.createElement('tbody');
-        tempRow = table.appendChild(row);
-        thead = tempRow.appendChild(thead);
-        img1 = thead.appendChild(document.createElement('img'));
-        img1.setAttribute("src", 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png');
-        img1.setAttribute("width", '80');
-        thead = document.createElement('th');
-        thead = tempRow.appendChild(thead);
-        text1 = thead.appendChild(document.createElement('p'));
-        text1.innerHTML = word
-        thead = document.createElement('th');
-        thead = tempRow.appendChild(thead);
-        text1 = thead.appendChild(document.createElement('p'));
-        text1.innerHTML = price[0] + " gil";
-        */
+        document.getElementById("output").innerText = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
-        document.getElementById("name1").innerHTML =  items[itemID].Name;
-        document.getElementById("gil1").innerHTML = price[0] + " gil";
+        document.getElementById("name1").innerText =  items[itemID].Name;
+        document.getElementById("gil1").innerText = price[0] + " gil";
         for (var i = 2; i < recipe.length+2; i++) {
             var tempID = searchForItemID(recipe[i-2][0]);
             var x = await getItemPrice("crystal", tempID, 1)
             console.log(x[0]);
             document.getElementById('img' + i).src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ tempID +'.png';
-            document.getElementById("name" + i).innerHTML =  items[tempID-1]["Name"];
-            document.getElementById("gil" + i).innerHTML = x[0] + " gil";
+            //can make faster by just using the item array it should just be itemID-1
+            document.getElementById("name" + i).innerText =  items[tempID-1]["Name"];
+            document.getElementById("gil" + i).innerText = x[0] + " gil";
         }
 
         //tbody = table.appendChild(tbody);

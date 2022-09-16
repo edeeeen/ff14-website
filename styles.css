@@ -11,23 +11,21 @@ h1 {
     font-size: 200%;
 }
 
-table {
-    color: #232b2b; 
-}
-
 button {
     display:inline-block;
 }
 
-table {
-    font-family: verdana;
-    font-size: 100%;
-    width: 100%;
-    color: white;
-
+.table {
+    margin-left: auto;
+    margin-right: auto;
+    border: white;
 }
 
-tr {
+.pInTable {
+    
+    width: 100%;
+    padding-left: 50px;
+    padding-right: 50px;
     margin-left: auto;
     margin-right: auto;
 }

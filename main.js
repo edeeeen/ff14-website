@@ -57,7 +57,7 @@ async function getItemPrice(world, itemID, amount) {
 
 function searchForItemID(item) {
     var index = itemName.indexOf(item.toLowerCase());
-    return index+1
+    return index+1;
 }
 
 //stolen from stack overflow
@@ -119,6 +119,7 @@ async function getRecipePrice(world, recipe, amountToMake) {
 async function buttonClick() {
     var word = document.getElementById("input").value;
     var itemID = searchForItemID(word);
+    console.log(itemID);
     var price = await getItemPrice("crystal", itemID, 1);
     if (recipiesResultID.indexOf(itemID) == -1) {
         document.getElementById("output").innerHTML = word + " is not craftable, however sells for " + price[0] + " gil"  ;
@@ -152,14 +153,15 @@ async function buttonClick() {
         text1.innerHTML = price[0] + " gil";
         */
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
-        document.getElementById("name1").innerHTML =  items[itemID+1].Name;
-        document.getElementById("gil1").innerHTML = price[0] + "gil";
-        for (var i = 2; i < recipe.length; i++) {
+        document.getElementById("name1").innerHTML =  items[itemID].Name;
+        document.getElementById("gil1").innerHTML = price[0] + " gil";
+        for (var i = 2; i < recipe.length+2; i++) {
             var tempID = searchForItemID(recipe[i-2][0]);
-            console.log(tempID);
+            var x = await getItemPrice("crystal", tempID, 1)
+            console.log(x[0]);
             document.getElementById('img' + i).src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ tempID +'.png';
-            document.getElementById("name" + i).innerHTML =  items[itemID+1]["Name"];
-            document.getElementById("gil" + i).innerHTML = price[0] + "gil";
+            document.getElementById("name" + i).innerHTML =  items[tempID-1]["Name"];
+            document.getElementById("gil" + i).innerHTML = x[0] + " gil";
         }
 
         //tbody = table.appendChild(tbody);

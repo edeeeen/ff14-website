@@ -3,10 +3,6 @@ var items = [];
 var recipies = [];
 var recipiesResultID = [];
 
-function autoComplete(){
-    
-}
-
 async function getData(jsonURL) {
    //load up the JSON and send it back as a string
    //this is slow and needs to be optimized when i want to learn about it
@@ -18,7 +14,6 @@ async function getData(jsonURL) {
     }
     const itemListJson = await response.json();
     return JSON.stringify(itemListJson);
-
 }
 
 window.onload = async function() {
@@ -32,9 +27,8 @@ window.onload = async function() {
     }
 };
 
-async function getItemPrice(world, itemID, amount) {
-
-    const response = await fetch("https://universalis.app/api/v2/" + world + "/" + itemID + "?listings=20");
+async function getItemPrice(world, itemID, amount, HQ = false) {
+    const response = await fetch("https://universalis.app/api/v2/" + world + "/" + itemID + "?listings=20" + "&hq=" + HQ);
     if (!response.ok) {
         throw Error(response.statusText);
     }
@@ -82,11 +76,16 @@ function craftingRecipe(itemID){
 
 }
 //finds the total price of the recipe
-async function getRecipePrice(world, recipe, amountToMake) {
+async function getRecipePrice(world, recipe, amountToMake, HQ = null) {
     var totalPrice = 0;
+    var x = 0;
     for (let item of recipe) {
         var total = item[1]*amountToMake;
-        var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), total);
+        if (HQ == null) {
+            var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), total);
+        } else {
+            var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), total, HQ[x]);
+        }
         //count to the total with this
         var countingTotal = 0;
         var i = 1;
@@ -104,6 +103,7 @@ async function getRecipePrice(world, recipe, amountToMake) {
             
             i += 3;
         } while(i < itemPriceArr.length);
+        x++
     }
     return totalPrice;
 }
@@ -125,7 +125,7 @@ async function buttonClick() {
         var total =  await getRecipePrice("crystal", recipe, 1);
         document.getElementById("output").innerText = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
-        document.getElementById("name1").innerText =  items[itemID-1].Name;
+        document.getElementById("name1").innerText = items[itemID-1].Name;
         document.getElementById("gil1").innerText = price[0] + " gil";
         var table = document.getElementById("table2");
         console.log(recipe);
@@ -152,8 +152,8 @@ async function buttonClick() {
                         //checkbox.name = "name";
                         //checkbox.value = "value";
                         checkbox.className = "checkboxIn";
-                        checkbox.id = ""
-                        checkbox.setAttribute("onchange", "checkboxClick(" + recipe[i][1] + ",'"  + items[tempID-1]["Name"] + "')");
+                        checkbox.id = items[tempID-1]["Name"];
+                        checkbox.setAttribute("onchange", "checkboxClick(" + recipe + ",'"  + items[tempID-1]["Name"] + "')");
                         cell.appendChild(checkbox);
                         break;
                     case 1:
@@ -175,13 +175,15 @@ async function buttonClick() {
                         var name = document.createElement('p');
                         name.innerText = items[tempID-1]["Name"];
                         name.className = "pInTable";
+                        name.id = items[tempID-1]["Name"];
                         cell.appendChild(name);
                         break;
                     case 4:
                         //gil
                         var gil = document.createElement('p');
-                        gil.innerText = itemPrice[0] + " gil";
+                        gil.innerText = (itemPrice[0] * recipe[i][1]) + " gil";
                         gil.className = "pInTable";
+                        gil.id = items[tempID-1]["Name"];
                         cell.appendChild(gil);
                         break;
                     default:
@@ -192,6 +194,6 @@ async function buttonClick() {
     }     
 }
 
-function checkboxClick(amount, name) {
-    console.log(amount + "             " + name);
+function checkboxClick(recipe, name) {
+    document.getElementById(name).innerText="lawl";
 }

@@ -2,6 +2,7 @@ var itemName = [];
 var items = [];
 var recipies = [];
 var recipiesResultID = [];
+var recipe;
 
 async function getData(jsonURL) {
    //load up the JSON and send it back as a string
@@ -121,7 +122,7 @@ async function buttonClick() {
         document.getElementById("gil1").innerText = price[0] + " gil";
         console.log(itemID);
     } else {
-        var recipe = craftingRecipe(itemID);
+        recipe = craftingRecipe(itemID);
         var total =  await getRecipePrice("crystal", recipe, 1);
         document.getElementById("output").innerText = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
@@ -152,8 +153,8 @@ async function buttonClick() {
                         //checkbox.name = "name";
                         //checkbox.value = "value";
                         checkbox.className = "checkboxIn";
-                        checkbox.id = items[tempID-1]["Name"];
-                        checkbox.setAttribute("onchange", "checkboxClick(" + recipe + ",'"  + items[tempID-1]["Name"] + "')");
+                        //checkbox.id = items[tempID-1]["Name"];
+                        checkbox.setAttribute("onchange", "checkboxClick("+ tempID + ")");
                         cell.appendChild(checkbox);
                         break;
                     case 1:
@@ -183,7 +184,7 @@ async function buttonClick() {
                         var gil = document.createElement('p');
                         gil.innerText = (itemPrice[0] * recipe[i][1]) + " gil";
                         gil.className = "pInTable";
-                        gil.id = items[tempID-1]["Name"];
+                        gil.id = items[tempID-1]["Name"] + "gil";
                         cell.appendChild(gil);
                         break;
                     default:
@@ -194,6 +195,8 @@ async function buttonClick() {
     }     
 }
 
-function checkboxClick(recipe, name) {
-    document.getElementById(name).innerText="lawl";
+function checkboxClick(itemID) {
+    console.log(itemID);
+    console.log(items[itemID-1].Name);
+    document.getElementById("Paldao Lumber").innerText = "hi";
 }

@@ -55,7 +55,7 @@ function searchForItemID(item) {
     return index+1;
 }
 
-function craftingRecipe(itemID){
+async function craftingRecipe(itemID){
     index = recipiesResultID.indexOf(itemID);
     if(index == -1) {
         return "Error, not craftable";
@@ -63,30 +63,34 @@ function craftingRecipe(itemID){
         var itemList = [];
         for(var i = 0; i < 10; i++) {
             try {
+                var itemID = recipies[index]["Item{Ingredient}["+i+"]"];
                 var item = items[recipies[index]["Item{Ingredient}["+i+"]"]-1].Name.toLowerCase();
                 var amount = recipies[index]["Amount{Ingredient}["+i+"]"];
+                var price = await getItemPrice("crystal", itemID, 1);
+                price = price[0];
             }
             catch {
                 break;
             }
-            itemList.push([item, amount]);
+            itemList.push([itemID, item, amount, price, false]);
         }
         //console.log(itemList);
         return itemList;
     }
 
 }
+
+
 //finds the total price of the recipe
-async function getRecipePrice(world, recipe, amountToMake, HQ = null) {
+async function getRecipePrice(world, recipe, amountToMake) {
     var totalPrice = 0;
     var x = 0;
     for (let item of recipe) {
+        //NEED TO CHECK IF THERE ARE NO LISTINGS!!
+        //
+
         var total = item[1]*amountToMake;
-        if (HQ == null) {
-            var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), total);
-        } else {
-            var itemPriceArr = await getItemPrice(world, searchForItemID(item[0]), total, HQ[x]);
-        }
+        var itemPriceArr = await getItemPrice(world, item[0], total, item[4]);
         //count to the total with this
         var countingTotal = 0;
         var i = 1;
@@ -109,12 +113,25 @@ async function getRecipePrice(world, recipe, amountToMake, HQ = null) {
     return totalPrice;
 }
 
+function updateTable(recipe) {
+    //at this point recipe will look like [name, amount, quality, price]
+
+}
+
 
 async function buttonClick() {
     var word = document.getElementById("input").value;
     var itemID = searchForItemID(word);
     console.log(itemID);
-    var price = await getItemPrice("crystal", itemID, 1);
+    //check if they want it to be HQ
+    if (document.getElementById("hqCheckbox").value == "on") {
+        //HQ
+        var price = await getItemPrice("crystal", itemID, 1, true);
+    } else {
+        //NQ
+        var price = await getItemPrice("crystal", itemID, 1);
+    }
+    //check if it is craftable
     if (recipiesResultID.indexOf(itemID) == -1) {
         document.getElementById("output").innerText = word + " is not craftable, however sells for " + price[0] + " gil"  ;
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
@@ -122,7 +139,8 @@ async function buttonClick() {
         document.getElementById("gil1").innerText = price[0] + " gil";
         console.log(itemID);
     } else {
-        recipe = craftingRecipe(itemID);
+        recipe = await craftingRecipe(itemID);
+        console.log(recipe);
         var total =  await getRecipePrice("crystal", recipe, 1);
         document.getElementById("output").innerText = word + " costs " + total + " gil to craft if it is all NQ That is a " + (price[0]-total) + " gil profit";
         document.getElementById('img1').src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ itemID +'.png';
@@ -137,8 +155,6 @@ async function buttonClick() {
         }
         
         for (var i = 0; i < recipe.length; i++) {
-            var tempID = searchForItemID(recipe[i][0]);
-            var itemPrice = await getItemPrice("crystal", tempID, 1)
             var row = table.insertRow(i);
             row.className = "tableDeletion";
             //is there a better way to do this? prolly
@@ -147,44 +163,50 @@ async function buttonClick() {
                 cell.className = "tableDeletion"
                 switch(x) {
                     case 0:
-                        //Clicker boy
+                        //Clicker box
+                        //Will change to a button
                         var checkbox = document.createElement('input');
                         checkbox.type = "checkbox";
                         //checkbox.name = "name";
                         //checkbox.value = "value";
                         checkbox.className = "checkboxIn";
                         //checkbox.id = items[tempID-1]["Name"];
-                        checkbox.setAttribute("onchange", "checkboxClick("+ tempID + ")");
+                        checkbox.setAttribute("onchange", "checkboxClick("+ recipe[i][0] + ")");
                         cell.appendChild(checkbox);
                         break;
                     case 1:
                         //img
                         var image = document.createElement('img');
                         image.width = "80";
-                        image.src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ tempID +'.png';
+                        image.src = 'https://universalis-ffxiv.github.io/universalis-assets/icon2x/'+ recipe[i][0] +'.png';
                         cell.appendChild(image);
                         break;
                     case 2:
                         //amount
                         var amount = document.createElement('p');
-                        amount.innerText = recipe[i][1];
+                        amount.innerText = recipe[i][2];
                         amount.className = "pInTable";
                         cell.appendChild(amount);
                         break;
                     case 3:
                         //name
+                        var itemName = items[recipe[i][0]-1]["Name"];
                         var name = document.createElement('p');
-                        name.innerText = items[tempID-1]["Name"];
+                        name.innerText = itemName;
                         name.className = "pInTable";
-                        name.id = items[tempID-1]["Name"];
+                        name.id = itemName;
+                        var image = document.createElement("img");
+                        image.id = itemName + "img";
+                        image.className = "HQimage";
                         cell.appendChild(name);
+                        cell.appendChild(image);
                         break;
                     case 4:
                         //gil
                         var gil = document.createElement('p');
-                        gil.innerText = (itemPrice[0] * recipe[i][1]) + " gil";
+                        gil.innerText = (recipe[i][3] * recipe[i][2]) + " gil";
                         gil.className = "pInTable";
-                        gil.id = items[tempID-1]["Name"] + "gil";
+                        gil.id = items[recipe[i][0]-1]["Name"] + "gil";
                         cell.appendChild(gil);
                         break;
                     default:
@@ -195,8 +217,22 @@ async function buttonClick() {
     }     
 }
 
-function checkboxClick(itemID) {
+
+//this is going to change to a button
+async function checkboxClick(itemID) {
     console.log(itemID);
-    console.log(items[itemID-1].Name);
-    document.getElementById("Paldao Lumber").innerText = "hi";
+    var itemName = items[itemID-1].Name;    
+    if (document.getElementById(itemName + "img").hasAttribute("src")) {
+        //HQ
+        var HQprice = await getItemPrice("crystal", itemID, 1, true)
+        document.getElementById(itemName + "gil").innerText = HQprice[0] + " gil";
+        document.getElementById(itemName + "img").removeAttribute("src");
+        document.getElementById(itemName + "img").setAttribute("style", "");
+    } else {
+        //NQ
+        var NQprice = await getItemPrice("crystal", itemID, 1, false)
+        document.getElementById(itemName + "gil").innerText = NQprice[0] + " gil";
+        document.getElementById(itemName + "img").setAttribute("src", "https://img.finalfantasyxiv.com/lds/h/G/excekDM0jBJRSF6eLahmhR7Yys.png")
+        document.getElementById(itemName + "img").setAttribute("style", "height: 20px");
+    }
 }

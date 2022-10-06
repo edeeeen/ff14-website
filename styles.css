@@ -33,3 +33,10 @@ button {
     padding-left: 50px;
     padding-right: 50px;
 }
+
+.HQimage {
+    width: 20px;
+    object-fit: cover;
+    object-position: 0px 0px;
+    display:inline-block;
+}
